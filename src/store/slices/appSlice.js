@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  activeUrl: 'http://localhost:5173',
+  activeUrl: '',
 };
 
 const appSlice = createSlice({

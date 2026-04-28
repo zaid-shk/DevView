@@ -9,7 +9,7 @@ const Navbar = () => {
     const dispatch = useDispatch()
 
     const handleUrlSubmit = (url) => {
-        dispatch(url)
+        dispatch(setActiveUrl(url));
     }
 
     return (

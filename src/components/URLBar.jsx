@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function URLBar({ onSubmit }) {
-  const [url, setUrl] = useState("http:localhost:5173");
+  const [url, setUrl] = useState("");
 
   const handleSubmit = () => {
     if (!url) return;

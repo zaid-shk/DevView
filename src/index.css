@@ -2,6 +2,18 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+@font-face {
+    font-family: 'Helvetica';
+    src: url('./assets/fonts/HelveticaNowDisplay-Medium.eot');
+    src: local('Helvetica Now Display Medium'), local('HelveticaNowDisplay-Medium'),
+        url('./assets/fonts/HelveticaNowDisplay-Medium.eot?#iefix') format('embedded-opentype'),
+        url('./assets/fonts/HelveticaNowDisplay-Medium.woff2') format('woff2'),
+        url('./assets/fonts/HelveticaNowDisplay-Medium.woff') format('woff'),
+        url('./assets/fonts/HelveticaNowDisplay-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }

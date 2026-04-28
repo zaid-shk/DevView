@@ -9,12 +9,12 @@ const Navbar = () => {
       <div className="flex gap-8 pl-13 text-zinc-400 font-medium">
         <Link to="/" className="hover:text-white transition-colors">Home</Link>
         <Link to="/features" className="hover:text-white transition-colors">Features</Link>
-        <Link to="/about" className="hover:text-white transition-colors">Pricing</Link>
-        <Link to="/about" className="hover:text-white transition-colors">Docs</Link>
+        <Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+        <Link to="/docs" className="hover:text-white transition-colors">Docs</Link>
       </div>
       <div className="flex gap-4">
         <button className="text-white bg-zinc-800 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">Log in</button>
-        <button className="text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20">Start Preview</button>
+        <Link to="/dashboard" className="text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20">Start Preview</Link>
       </div>
     </div>
   )

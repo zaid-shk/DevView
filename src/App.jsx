@@ -1,11 +1,10 @@
-import Page from "./landing/Page"
-
+import Layout from "./routing/Layout"
 
 function App() {
 
   return (
-    <div className="bg-zinc-950">
-      <Page/>
+    <div className="bg-zinc-950 min-h-screen">
+      <Layout/>
     </div>
   )
 }

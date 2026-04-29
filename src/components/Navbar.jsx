@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Share2, Settings } from 'lucide-react'
 import { useDispatch } from 'react-redux'
-import { setActiveUrl } from '../store/slices/appSlice'
+import { setActiveUrl, addToHistory } from '../store/slices/appSlice'
 import URLBar from './URLBar'
 
 const Navbar = () => {
@@ -10,13 +10,14 @@ const Navbar = () => {
 
     const handleUrlSubmit = (url) => {
         dispatch(setActiveUrl(url));
+        dispatch(addToHistory(url));
     }
 
     return (
         <div><div className="flex justify-between items-center px-10 py-3 bg-zinc-900 border-b border-zinc-800">
-            <div className="text-white text-2xl font-bold tracking-tighter">
+            <Link to={'/'} className="text-white text-2xl font-bold tracking-tighter">
                 Dev<span className="text-blue-500">View</span>
-            </div>
+            </Link>
 
             <div className="flex-1 max-w-2xl">
                 <URLBar onSubmit={handleUrlSubmit} />

@@ -1,16 +1,18 @@
 import React from 'react';
-import { Smartphone, Tablet, Laptop, Monitor } from 'lucide-react';
+import { Smartphone, Tablet, Laptop, Monitor, AlertTriangle, RefreshCw } from 'lucide-react';
 import ScreenSkeleton from './ScreenSkeleton';
 
-const SingleScreen = ({ 
-    screenId, 
-    config, 
-    scale, 
-    isLoading, 
-    activeUrl, 
-    reload, 
-    iframeRef, 
-    onIframeLoad 
+const SingleScreen = ({
+    screenId,
+    config,
+    scale,
+    isLoading,
+    activeUrl,
+    reload,
+    iframeRef,
+    onIframeLoad,
+    isError,
+    onRetry
 }) => {
     if (!config) return null;
 
@@ -26,7 +28,7 @@ const SingleScreen = ({
     };
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3" id={`device-preview-${screenId}`}>
             {/* Device Header */}
             <div className="flex items-center gap-3 px-2 py-1">
                 {getIcon(config.icon)}
@@ -69,12 +71,46 @@ const SingleScreen = ({
                 </div>
 
                 {/* Loading Skeleton */}
-                {isLoading && (
-                    <ScreenSkeleton 
-                        width={config.width} 
-                        height={config.height} 
-                        scale={scale} 
+                {isLoading && !isError && (
+                    <ScreenSkeleton
+                        width={config.width}
+                        height={config.height}
+                        scale={scale}
                     />
+                )}
+
+                {/* Error State */}
+                {isError && (
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#09090b] p-3 text-center">
+                        <div className="mb-3 text-rose-500">
+                            <AlertTriangle size={Math.max(20, 42 * scale)} strokeWidth={1.5} />
+                        </div>
+                        
+                        <h3 
+                            className="mb-2 font-semibold text-zinc-100 leading-tight"
+                            style={{ fontSize: `${Math.max(11, 17 * scale)}px` }}
+                        >
+                            This website cannot <br /> be loaded in preview
+                        </h3>
+                        
+                        <p 
+                            className="mb-5 text-zinc-500 leading-snug mx-auto"
+                            style={{ 
+                                fontSize: `${Math.max(9, 13 * scale)}px`,
+                                maxWidth: '90%'
+                            }}
+                        >
+                            This website doesn't allow <br /> embedding in iframes.
+                        </p>
+
+                        <button
+                            onClick={onRetry}
+                            className="rounded-md border border-zinc-800 bg-zinc-900/50 px-3 py-1 font-medium text-zinc-300 transition-all hover:bg-zinc-800 hover:text-zinc-100 active:scale-95"
+                            style={{ fontSize: `${Math.max(9, 12 * scale)}px` }}
+                        >
+                            Retry
+                        </button>
+                    </div>
                 )}
             </div>
         </div>

@@ -2,19 +2,58 @@ import { useState } from "react";
 
 export default function URLBar({ onSubmit }) {
   const [url, setUrl] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
 
-  const handleSubmit = () => {
-    if (!url) return;
+  const checkUrl = async (testUrl) => {
+    try {
+      // no-cors mode allows us to ping the server without CORS errors.
+      // If the domain doesn't exist or SSL fails, it throws an error.
+      await fetch(testUrl, { mode: "no-cors" });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
 
-    let formattedUrl = url.trim();
+  const handleSubmit = async () => {
+    if (!url || isChecking) return;
 
-    // add https if missing
-    if (!formattedUrl.startsWith("http")) {
-      formattedUrl = "https://" + formattedUrl;
-      formattedUrl = "https://www." + formattedUrl;
+    let base = url.trim();
+
+    // If user already specified a protocol, use it directly
+    if (base.startsWith("http://") || base.startsWith("https://")) {
+      onSubmit(base);
+      return;
     }
 
-    onSubmit(formattedUrl);
+    // Default to http for localhost and local IPs
+    if (base.includes("localhost") || base.match(/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/)) {
+      onSubmit("http://" + base);
+      return;
+    }
+
+    setIsChecking(true);
+
+    // Predict correct URL by testing common permutations
+    const protocolsToTry = [
+      `https://${base}`,
+      `https://www.${base}`,
+      `http://${base}`,
+      `http://www.${base}`,
+    ];
+
+    let correctUrl = `https://${base}`; // Fallback
+
+    for (const testUrl of protocolsToTry) {
+      const isReachable = await checkUrl(testUrl);
+      if (isReachable) {
+        correctUrl = testUrl;
+        break;
+      }
+    }
+
+    onSubmit(correctUrl);
+    setIsChecking(false);
   };
 
   return (
@@ -26,14 +65,16 @@ export default function URLBar({ onSubmit }) {
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-        className="flex-1 bg-transparent outline-none text-white px-2 py-2"
+        disabled={isChecking}
+        className={`flex-1 bg-transparent outline-none px-2 py-2 ${isChecking ? 'text-gray-500' : 'text-white'}`}
       />
 
       <button
         onClick={handleSubmit}
-        className="bg-yellow-400 text-black px-2 rounded-lg font-semibold hover:bg-yellow-300 transition"
+        disabled={isChecking}
+        className="bg-yellow-400 text-black px-2 py-1 my-1 rounded-lg font-semibold hover:bg-yellow-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Preview
+        {isChecking ? "Checking..." : "Preview"}
       </button>
     </div>
   );

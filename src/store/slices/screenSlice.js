@@ -22,6 +22,7 @@ const screenSlice = createSlice({
     },
     toggleDevice: (state, action) => {
       const deviceId = action.payload;
+      
       if (state.visibleDeviceIds.includes(deviceId)) {
         if (state.visibleDeviceIds.length > 1) {
           state.visibleDeviceIds = state.visibleDeviceIds.filter(id => id !== deviceId);
@@ -38,7 +39,7 @@ const screenSlice = createSlice({
       const id = `custom-${Date.now()}`;
       
       // Calculate a reasonable scale
-      const scale = width > 1000 ? 0.4 : 0.6;
+      const scale = width > 900 ? 0.4 : 0.6;
 
       const newDevice = {
         id,

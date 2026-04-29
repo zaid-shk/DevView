@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { Minus, Plus, RefreshCw, History, Save, Camera, Grid2x2Plus, RotateCcw, MonitorSmartphone, Monitor, Tablet, Smartphone, Laptop, Check } from 'lucide-react';
 import { setSyncScroll, setReload, incremented, decremented } from '../../store/slices/appSlice';
 import { toggleDevice, addCustomDevice } from '../../store/slices/screenSlice';
+import domtoimage from 'dom-to-image-more';
+import { toast } from 'react-hot-toast';
 
 const Control = () => {
     const dispatch = useDispatch();
@@ -12,6 +15,59 @@ const Control = () => {
     const zoomLevel = useSelector((state) => state.app.zoomLevel);
     const allDevices = useSelector((state) => state.screen?.devices || []);
     const visibleDeviceIds = useSelector((state) => state.screen?.visibleDeviceIds || []);
+
+    const [isScreenshotLoading, setIsScreenshotLoading] = useState(false);
+
+    const handleScreenshot = async () => {
+        if (visibleDeviceIds.length === 0) {
+            toast.error("No screens selected to capture");
+            return;
+        }
+
+        setIsScreenshotLoading(true);
+        const loadingToast = toast.loading("Generating screenshot...");
+
+        try {
+            console.log("Starting capture with dom-to-image...");
+            const element = document.getElementById('all-screens-container');
+            
+            if (!element) {
+                console.error("Container #all-screens-container not found");
+                throw new Error("Preview container not found");
+            }
+
+            // dom-to-image-more handles oklch and modern CSS much better
+            const dataUrl = await domtoimage.toPng(element, {
+                bgcolor: '#0a0a0a',
+                width: element.scrollWidth,
+                height: element.scrollHeight,
+                style: {
+                    transform: 'none', // Remove any transformations for clean capture
+                    padding: '40px'
+                },
+                // Skip iframes if they cause errors, though dom-to-image usually just leaves them blank if cross-origin
+                filter: (node) => node.tagName !== 'IFRAME' || true 
+            });
+            
+            if (!dataUrl) throw new Error("Failed to generate image data");
+
+            console.log("Image generated, creating download...");
+            
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `devview-responsive-${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast.success("Download started!", { id: loadingToast });
+        } catch (error) {
+            console.error("Screenshot error detailed:", error);
+            toast.error("Capture failed. This usually happens with protected external websites.", { id: loadingToast });
+        } finally {
+            setIsScreenshotLoading(false);
+        }
+    };
 
     const [isDeviceMenuOpen, setIsDeviceMenuOpen] = useState(false);
     const [isCustomMenuOpen, setIsCustomMenuOpen] = useState(false);
@@ -87,7 +143,7 @@ const Control = () => {
                     >
                         <div className={clsx("w-3.5 h-3.5 bg-white rounded-full absolute top-[3px] transition-all duration-200 shadow-sm", syncScroll ? "left-[18px]" : "left-1")}></div>
                     </button>
-                    <RefreshCw size={14} className="text-zinc-500 cursor-pointer hover:text-white ml-1" />
+                    {/* <RefreshCw size={14} className="text-zinc-500 cursor-pointer hover:text-white ml-1" /> */}
                 </div>
 
                 {/* Reload */}
@@ -103,10 +159,10 @@ const Control = () => {
 
                 {/* History & Saved Projects */}
                 <div className="flex items-center gap-1 bg-[#18181b] p-1 rounded-xl border border-zinc-800/50 shadow-sm">
-                    <button className="flex items-center gap-2 hover:bg-[#27272a] px-3 py-1.5 rounded-lg transition-colors text-zinc-400 hover:text-zinc-200">
+                    <Link to="/history" className="flex items-center gap-2 hover:bg-[#27272a] px-3 py-1.5 rounded-lg transition-colors text-zinc-400 hover:text-zinc-200">
                         <History size={14} />
                         <span className="text-xs font-medium hidden sm:inline">History</span>
-                    </button>
+                    </Link>
                     <button className="flex items-center gap-2 hover:bg-[#27272a] px-3 py-1.5 rounded-lg transition-colors text-zinc-400 hover:text-zinc-200">
                         <Save size={14} />
                         <span className="text-xs font-medium hidden sm:inline">Saved Projects</span>
@@ -116,9 +172,18 @@ const Control = () => {
                 <div className="flex-1"></div>
 
                 {/* Screenshot */}
-                <button className="flex items-center gap-2 bg-[#18181b] hover:bg-[#27272a] px-4 py-2 rounded-xl border border-zinc-800/50 transition-colors shadow-sm text-zinc-400 hover:text-zinc-200">
-                    <Camera size={14} />
-                    <span className="text-xs font-medium hidden sm:inline">Screenshot</span>
+                <button 
+                    onClick={handleScreenshot}
+                    disabled={isScreenshotLoading}
+                    className={clsx(
+                        "flex items-center gap-2 bg-[#18181b] hover:bg-[#27272a] px-4 py-2 rounded-xl border border-zinc-800/50 transition-colors shadow-sm text-zinc-400 hover:text-zinc-200",
+                        isScreenshotLoading && "opacity-50 cursor-not-allowed"
+                    )}
+                >
+                    <Camera size={14} className={clsx(isScreenshotLoading && "animate-pulse")} />
+                    <span className="text-xs font-medium hidden sm:inline">
+                        {isScreenshotLoading ? "Capturing..." : "Screenshot"}
+                    </span>
                 </button>
 
                 {/* Add Devices / Custom */}

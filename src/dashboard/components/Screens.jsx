@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import EmptyState from './EmptyState';
 import SingleScreen from './SingleScreen';
+import { clsx } from 'clsx';
 
 const Screens = () => {
     const activeUrl = useSelector((state) => state.app.activeUrl);
@@ -154,6 +155,7 @@ const Screens = () => {
         }
     };
 
+    const theme = useSelector((state) => state.app.theme);
     const scale = 0.35 * (zoomLevel / 100);
 
     if (!activeUrl) {
@@ -161,7 +163,10 @@ const Screens = () => {
     }
 
     return (
-        <div className="w-full h-[calc(100vh-140px)] bg-[#0a0a0a] p-6 overflow-x-auto">
+        <div className={clsx(
+            "w-full h-[calc(100vh-140px)] p-6 overflow-x-auto transition-colors duration-300",
+            theme === 'light' ? "bg-white" : "bg-[#0a0a0a]"
+        )}>
             <div id="all-screens-container" className="flex items-start gap-8 min-w-max">
                 {visibleDeviceIds.map((screenId) => (
                     <SingleScreen

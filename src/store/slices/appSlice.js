@@ -5,7 +5,11 @@ const initialState = {
   syncScroll: true,
   reload: false,
   zoomLevel: 100,
+  theme: localStorage.getItem('devview_theme') || 'dark',
+  showDeviceFrames: localStorage.getItem('devview_frames') !== 'false',
+  enableAnimations: localStorage.getItem('devview_animations') !== 'false',
   history: JSON.parse(localStorage.getItem('devview_history') || '[]'),
+  savedProjects: JSON.parse(localStorage.getItem('devview_saved') || '[]'),
 };
 
 const appSlice = createSlice({
@@ -20,6 +24,33 @@ const appSlice = createSlice({
     },
     setReload:( state, action)=>{
       state.reload = action.payload
+    },
+    setTheme: (state, action) => {
+      state.theme = action.payload;
+      localStorage.setItem('devview_theme', action.payload);
+    },
+    setShowDeviceFrames: (state, action) => {
+      state.showDeviceFrames = action.payload;
+      localStorage.setItem('devview_frames', action.payload);
+    },
+    setEnableAnimations: (state, action) => {
+      state.enableAnimations = action.payload;
+      localStorage.setItem('devview_animations', action.payload);
+    },
+    saveProject: (state, action) => {
+      const { url, deviceIds, name } = action.payload;
+      state.savedProjects.unshift({
+        id: Date.now().toString(),
+        name: name || url,
+        url,
+        deviceIds,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem('devview_saved', JSON.stringify(state.savedProjects));
+    },
+    deleteProject: (state, action) => {
+      state.savedProjects = state.savedProjects.filter(p => p.id !== action.payload);
+      localStorage.setItem('devview_saved', JSON.stringify(state.savedProjects));
     },
     incremented: state => {
       if (state.zoomLevel < 200) state.zoomLevel += 10;
@@ -63,6 +94,11 @@ export const {
   setActiveUrl, 
   setSyncScroll, 
   setReload, 
+  setTheme,
+  setShowDeviceFrames,
+  setEnableAnimations,
+  saveProject,
+  deleteProject,
   incremented, 
   decremented,
   addToHistory,

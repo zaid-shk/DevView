@@ -1,6 +1,8 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Smartphone, Tablet, Laptop, Monitor, AlertTriangle, RefreshCw } from 'lucide-react';
 import ScreenSkeleton from './ScreenSkeleton';
+import { clsx } from 'clsx';
 
 const SingleScreen = ({
     screenId,
@@ -14,6 +16,10 @@ const SingleScreen = ({
     isError,
     onRetry
 }) => {
+    const showDeviceFrames = useSelector((state) => state.app.showDeviceFrames);
+    const enableAnimations = useSelector((state) => state.app.enableAnimations);
+    const theme = useSelector((state) => state.app.theme);
+
     if (!config) return null;
 
     const getIcon = (iconName) => {
@@ -24,26 +30,34 @@ const SingleScreen = ({
             monitor: Monitor
         };
         const Icon = icons[iconName] || Monitor;
-        return <Icon size={20} className="text-zinc-400" />;
+        return <Icon size={20} className={theme === 'light' ? "text-zinc-500" : "text-zinc-400"} />;
     };
 
     return (
         <div className="flex flex-col gap-3" id={`device-preview-${screenId}`}>
             {/* Device Header */}
-            <div className="flex items-center gap-3 px-2 py-1">
-                {getIcon(config.icon)}
-                <div className="flex flex-col">
-                    <span className="text-zinc-200 text-sm font-medium">{config.name}</span>
-                    <span className="text-zinc-500 text-xs">{config.width}px</span>
+            {showDeviceFrames && (
+                <div className="flex items-center gap-3 px-2 py-1">
+                    {getIcon(config.icon)}
+                    <div className="flex flex-col">
+                        <span className={clsx("text-sm font-medium", theme === 'light' ? "text-zinc-900" : "text-zinc-200")}>{config.name}</span>
+                        <span className="text-zinc-500 text-xs">{config.width}px</span>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Device Screen Container (Scaled bounds) */}
             <div
-                className="relative overflow-hidden rounded-xl border border-zinc-800/80 bg-[#111113] shadow-sm"
+                className={clsx(
+                    "relative overflow-hidden shadow-sm transition-all",
+                    theme === 'light' ? "bg-white" : "bg-[#111113]",
+                    showDeviceFrames ? (theme === 'light' ? "rounded-md border border-zinc-200 shadow-md" : "rounded-xl border border-zinc-800/80") : "rounded-none border-none",
+                    !enableAnimations && "transition-none"
+                )}
                 style={{
                     width: `${config.width * scale}px`,
-                    height: `${config.height * scale}px`
+                    height: `${config.height * scale}px`,
+                    transitionDuration: enableAnimations ? '400ms' : '0ms'
                 }}
             >
                 {/* Real Website Iframe */}
@@ -55,7 +69,7 @@ const SingleScreen = ({
                         transform: `scale(${scale})`,
                         transformOrigin: 'top left',
                         opacity: isLoading ? 0 : 1,
-                        transition: 'opacity 0.4s ease-in-out',
+                        transition: enableAnimations ? 'opacity 0.4s ease-in-out' : 'none',
                         pointerEvents: isLoading ? 'none' : 'auto',
                         zIndex: 10
                     }}
@@ -81,13 +95,16 @@ const SingleScreen = ({
 
                 {/* Error State */}
                 {isError && (
-                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#09090b] p-3 text-center">
+                    <div className={clsx(
+                        "absolute inset-0 z-20 flex flex-col items-center justify-center p-3 text-center transition-colors duration-300",
+                        theme === 'light' ? "bg-zinc-50" : "bg-[#09090b]"
+                    )}>
                         <div className="mb-3 text-rose-500">
                             <AlertTriangle size={Math.max(20, 42 * scale)} strokeWidth={1.5} />
                         </div>
                         
                         <h3 
-                            className="mb-2 font-semibold text-zinc-100 leading-tight"
+                            className={clsx("mb-2 font-semibold leading-tight", theme === 'light' ? "text-zinc-900" : "text-zinc-100")}
                             style={{ fontSize: `${Math.max(11, 17 * scale)}px` }}
                         >
                             This website cannot <br /> be loaded in preview
@@ -105,7 +122,10 @@ const SingleScreen = ({
 
                         <button
                             onClick={onRetry}
-                            className="rounded-md border border-zinc-800 bg-zinc-900/50 px-3 py-1 font-medium text-zinc-300 transition-all hover:bg-zinc-800 hover:text-zinc-100 active:scale-95"
+                            className={clsx(
+                                "rounded-md border px-3 py-1 font-medium transition-all active:scale-95",
+                                theme === 'light' ? "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50" : "border-zinc-800 bg-zinc-900/50 text-zinc-300 hover:bg-zinc-800"
+                            )}
                             style={{ fontSize: `${Math.max(9, 12 * scale)}px` }}
                         >
                             Retry

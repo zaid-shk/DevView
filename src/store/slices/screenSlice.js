@@ -22,11 +22,8 @@ const screenSlice = createSlice({
     },
     toggleDevice: (state, action) => {
       const deviceId = action.payload;
-      
       if (state.visibleDeviceIds.includes(deviceId)) {
-        if (state.visibleDeviceIds.length > 1) {
-          state.visibleDeviceIds = state.visibleDeviceIds.filter(id => id !== deviceId);
-        }
+        state.visibleDeviceIds = state.visibleDeviceIds.filter(id => id !== deviceId);
       } else {
         state.visibleDeviceIds.push(deviceId);
       }
@@ -35,11 +32,11 @@ const screenSlice = createSlice({
       state.visibleDeviceIds = action.payload;
     },
     addCustomDevice: (state, action) => {
-      const { name, width, height } = action.payload;
+      const { name, width, height, icon, category } = action.payload;
       const id = `custom-${Date.now()}`;
       
       // Calculate a reasonable scale
-      const scale = width > 900 ? 0.4 : 0.6;
+      const scale = parseInt(width) > 900 ? 0.4 : 0.6;
 
       const newDevice = {
         id,
@@ -47,16 +44,38 @@ const screenSlice = createSlice({
         width: parseInt(width),
         height: parseInt(height),
         scale,
-        icon: "monitor",
-        category: "custom"
+        icon: icon || "monitor",
+        category: category || "custom"
       };
 
       state.devices.push(newDevice);
       state.visibleDeviceIds.push(id);
     },
+    removeDevice: (state, action) => {
+      const deviceId = action.payload;
+      // Don't allow removing built-in devices from initial set
+      state.devices = state.devices.filter(d => d.id !== deviceId);
+      state.visibleDeviceIds = state.visibleDeviceIds.filter(id => id !== deviceId);
+    },
+    updateDevice: (state, action) => {
+      const { id, name, width, height, icon, category } = action.payload;
+      const device = state.devices.find(d => d.id === id);
+      if (device) {
+        if (name !== undefined) device.name = name;
+        if (width !== undefined) device.width = parseInt(width);
+        if (height !== undefined) device.height = parseInt(height);
+        if (icon !== undefined) device.icon = icon;
+        if (category !== undefined) device.category = category;
+        device.scale = parseInt(width || device.width) > 900 ? 0.4 : 0.6;
+      }
+    },
+    resetDevices: (state) => {
+      state.devices = initialDevices;
+      state.visibleDeviceIds = ["mobile-m", "tablet", "desktop"];
+    },
   },
 });
 
-export const { setPreviewUrl, toggleDevice, setVisibleDevices, addCustomDevice } = screenSlice.actions;
+export const { setPreviewUrl, toggleDevice, setVisibleDevices, addCustomDevice, removeDevice, updateDevice, resetDevices } = screenSlice.actions;
 export default screenSlice.reducer;
 

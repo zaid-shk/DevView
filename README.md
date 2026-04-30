@@ -59,33 +59,36 @@ The project is entirely client-side. No backend is required for core functionali
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Browser (Client)                      │
+│                    Browser (Client)                     │
 │                                                         │
-│  ┌─────────────┐    ┌────────────────────────────────┐  │
-│  │  BrowserRouter│   │         Redux Store            │  │
+│  ┌───────────────┐   ┌───────────────────────────────┐  │
+│  │  BrowserRouter│   │         Redux Store           │  │
 │  │  (React Router│   │  ┌──────────┐  ┌────────────┐ │  │
 │  │   v7)         │   │  │ appSlice │  │screenSlice │ │  │
 │  └──────┬────────┘   │  └──────────┘  └────────────┘ │  │
-│         │            └────────────────────────────────┘  │
+│         │            └───────────────────────────────┘  │
 │  ┌──────▼────────────────────────────────────────────┐  │
-│  │                   Layout.jsx (Router)              │  │
+│  │                   Layout.jsx (Router)             │  │
 │  │  /          →  LandingPage                        │  │
 │  │  /dashboard →  Dashboard (Control + Screens)      │  │
 │  │  /history   →  HistoryPage                        │  │
+│  │  /devices   →  Device Manager Page                │  │
+│  │  /settings  →  Settings & Appearance Page         │  │
+│  │  /saved     →  Saved Projects Page                │  │
 │  └───────────────────────────────────────────────────┘  │
 │                                                         │
 │  Dashboard:                                             │
 │  ┌──────────────────────────────────────────────────┐   │
-│  │  Navbar ── URLBar                                 │   │
-│  │  Control Bar (Zoom | SyncScroll | Reload |        │   │
-│  │               Screenshot | History | Devices)     │   │
-│  │  ┌────────────────────────────────────────────┐   │   │
-│  │  │  Screens.jsx (orchestrator)                 │   │   │
-│  │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐   │   │   │
-│  │  │  │SingleScreen│ │SingleScreen│ │SingleScreen│  │   │   │
-│  │  │  │ (iframe) │ │ (iframe) │ │ (iframe) │   │   │   │
-│  │  │  └──────────┘ └──────────┘ └──────────┘   │   │   │
-│  │  └────────────────────────────────────────────┘   │   │
+│  │  Navbar ── URLBar                                │   │
+│  │  Control Bar (Zoom | SyncScroll | Reload |       │   │
+│  │               Screenshot | History | Devices)    │   │
+│  │  ┌──────────────────────────────────────────────┐│   │
+│  │  │  Screens.jsx (orchestrator)                  ││   │
+│  │  │ ┌────────────┐ ┌────────────┐ ┌────────────┐ ││   │
+│  │  │ │SingleScreen│ │SingleScreen│ │SingleScreen│ ││   |
+│  │  │ │ (iframe)   │ │ (iframe)   │ │ (iframe)   │ ││   │
+│  │  │ └────────────┘ └────────────┘ └────────────┘ ││   │
+│  │  └──────────────────────────────────────────────┘│   │
 │  └──────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -147,8 +150,11 @@ frontend/
     ├── dashboard/              # Core application module
     │   ├── Page.jsx            # Dashboard shell (Navbar + URLBar + Control + Screens)
     │   ├── History.jsx         # /history page — browsing history manager
+    │   ├── Devices.jsx         # /devices page — custom device presets manager
+    │   ├── Settings.jsx        # /settings page — theme and app preferences
+    │   ├── SavedProjects.jsx   # /saved page — bookmarked URLs and configurations
     │   └── components/
-    │       ├── Control.jsx     # Control bar (zoom, sync, screenshot, devices)
+    │       ├── Control.jsx     # Control bar (zoom, sync, screenshot, devices, save)
     │       ├── Screens.jsx     # Renders all visible device iframes
     │       ├── SingleScreen.jsx# One device frame (iframe + skeleton + error UI)
     │       ├── EmptyState.jsx  # Illustrated empty state before URL is entered
@@ -443,21 +449,23 @@ history: JSON.parse(localStorage.getItem('devview_history') || '[]')
 
 ### 6.7 Custom Device Management
 
-**Files:** `src/dashboard/components/Control.jsx`, `src/store/slices/screenSlice.js`
+**Files:** `src/dashboard/Devices.jsx`, `src/dashboard/components/Control.jsx`, `src/store/slices/screenSlice.js`
 
-Users can define any custom screen size from the Control bar.
+Users can define any custom screen size from the dedicated Device Manager page (`/devices`).
 
 **Custom device form fields:**
 - Device Name (text)
 - Width in px (number)
 - Height in px (number)
+- Icon (smartphone, tablet, laptop, monitor)
+- Category (mobile, tablet, desktop, custom)
 
 **`addCustomDevice` reducer:**
 ```js
 addCustomDevice: (state, action) => {
   const id = `custom-${Date.now()}`;
   const scale = width > 900 ? 0.4 : 0.6; // auto-scale heuristic
-  const newDevice = { id, name, width, height, scale, icon: "monitor", category: "custom" };
+  const newDevice = { id, ...action.payload, scale };
   state.devices.push(newDevice);
   state.visibleDeviceIds.push(id); // immediately visible
 }
@@ -465,11 +473,29 @@ addCustomDevice: (state, action) => {
 
 **Toggle devices:** The `toggleDevice` reducer enforces a **minimum of 1 visible device** — you cannot hide all screens at once.
 
-**Device dropdown (`Add Device` button):** Lists all devices (built-in + custom) with a checkmark on visible ones. Clicking toggles visibility via `dispatch(toggleDevice(device.id))`.
+**Device Manager & Dropdown:** Lists all devices (built-in + custom) categorized neatly. Clicking toggles visibility via `dispatch(toggleDevice(device.id))`.
 
 ---
 
-### 6.8 Zoom Control
+### 6.8 Saved Projects
+
+**Files:** `src/dashboard/SavedProjects.jsx`, `src/store/slices/appSlice.js`
+
+Users can bookmark their current testing configurations, capturing the active URL and the specific devices currently visible.
+
+**Saving Flow:**
+- Click "Save" in the `Control.jsx` bar.
+- Provide an optional project name.
+- Project is dispatched to Redux and persisted to `localStorage`.
+
+**Saved Projects Page (`/saved`):**
+- Displays a grid of project cards with device icons.
+- One-click loading restores the exact `activeUrl` and `visibleDeviceIds`.
+- Integrated search functionality to find projects quickly.
+
+---
+
+### 6.9 Zoom Control
 
 **File:** `src/store/slices/appSlice.js`, `src/dashboard/components/Control.jsx`
 
@@ -504,7 +530,11 @@ The Redux store is configured with two slices. The store is created in `src/stor
   syncScroll: true,       // Whether synchronized scrolling is enabled
   reload: false,          // Toggle to force-reload all iframes
   zoomLevel: 100,         // Current zoom percentage (30–200)
-  history: []             // Array of { url, timestamp, id } objects
+  history: [],            // Array of { url, timestamp, id } objects
+  savedProjects: [],      // Array of { name, url, deviceIds, timestamp, id }
+  theme: 'dark',          // Global theme mode ('light' | 'dark')
+  showDeviceFrames: true, // Whether to show device name and dimensions
+  enableAnimations: true  // Global animation toggle
 }
 ```
 
@@ -519,6 +549,9 @@ The Redux store is configured with two slices. The store is created in `src/stor
 | `addToHistory` | `string` (url) | Adds URL to history, deduplicates, caps at 50 |
 | `removeFromHistory` | `string` (id) | Removes item by id |
 | `clearHistory` | — | Clears all history |
+| `saveProject` | `object` | Bookmarks a URL and device configuration |
+| `deleteProject` | `string` (id) | Removes a saved project |
+| `setTheme` | `'light'\|'dark'` | Updates the global appearance |
 
 ### 7.2 `screenSlice`
 
@@ -600,6 +633,15 @@ The illustration shown before any URL is entered. Features decorative floating e
 ### `History.jsx` (page)
 Full-page history manager at `/history`. Lists all stored history entries with timestamps. Shows an empty-state illustration when the history is empty.
 
+### `SavedProjects.jsx` (page)
+Dashboard for managing bookmarked URL and device configurations at `/saved`.
+
+### `Devices.jsx` (page)
+Comprehensive device manager at `/devices`. Allows creating custom device dimensions, adding predefined presets, filtering by category, and toggling visibility.
+
+### `Settings.jsx` (page)
+Preferences control center at `/settings`. Allows users to toggle between Light and Dark mode (`theme`), disable animations, and hide device header frames.
+
 ---
 
 ## 9. Routing
@@ -612,6 +654,9 @@ DevView uses React Router DOM v7 with `<BrowserRouter>` wrapping the entire app.
 Route: /            → <LandingPage />
 Route: /dashboard   → <Dashboard /> (URLBar + Control + Screens)
 Route: /history     → <HistoryPage />
+Route: /devices     → <DevicesPage />
+Route: /settings    → <SettingsPage />
+Route: /saved       → <SavedProjectsPage />
 ```
 
 Navigation between pages uses React Router's `<Link>` component and the `useNavigate()` hook — no hard page reloads.
@@ -634,18 +679,33 @@ DevView uses **Tailwind CSS v4** configured directly in CSS using the `@import "
 - **Inter** (Google Fonts) — primary UI font, weights 400–800
 - **Helvetica Now Display Medium** — self-hosted via `@font-face`, used for display headings
 
-**Color palette:** Zinc-based dark theme with amber/yellow (`#ffc53d`) as the primary accent color. The base background is `#0a0a0a` (near-black), with elevated surfaces at `#111113` and `#18181b`.
+**Color palette & Theme System:**
+DevView features a comprehensive Light and Dark mode system driven by Redux state (`app.theme`).
+- **Dark Mode (`'dark'`):** Zinc-based dark theme with amber/yellow (`#ffc53d`) accents. Base background `#0a0a0a`, with elevated surfaces at `#111113` and `#18181b`.
+- **Light Mode (`'light'`):** Crisp, high-contrast light theme with blue (`#2563eb`) accents. Base background `bg-zinc-50`, with clean white `bg-white` panels and subtle `border-zinc-200` borders.
 
-**Global base styles:**
+**Global Base Styles:**
 ```css
 body {
   @apply bg-zinc-950 text-white font-sans antialiased;
 }
+
+/* Global Thin Scrollbars */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+  }
+}
 ```
 
-**Conditional class merging** is handled throughout components using `clsx`:
+**Conditional Theme Merging:**
+Handled throughout components using `clsx` and ternaries:
 ```js
-className={clsx("base-class", condition && "conditional-class")}
+className={clsx(
+    "base-class transition-colors duration-300",
+    theme === 'light' ? "bg-white text-zinc-900" : "bg-zinc-900 text-white"
+)}
 ```
 
 ---

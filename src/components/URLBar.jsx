@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { clsx } from "clsx";
 
 export default function URLBar({ onSubmit }) {
   const [url, setUrl] = useState("");
   const [isChecking, setIsChecking] = useState(false);
+  const theme = useSelector((state) => state.app.theme);
 
   const checkUrl = async (testUrl) => {
     try {
@@ -57,7 +60,10 @@ export default function URLBar({ onSubmit }) {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex items-center gap-2 px-2 bg-[#1a1a1a] rounded-xl border border-gray-700">
+    <div className={clsx(
+      "w-full max-w-2xl mx-auto flex items-center gap-2 px-2 rounded-xl border transition-colors duration-300",
+      theme === 'light' ? "bg-zinc-100 border-zinc-200 shadow-sm" : "bg-[#1a1a1a] border-gray-700"
+    )}>
       
       <input
         type="text"
@@ -66,13 +72,19 @@ export default function URLBar({ onSubmit }) {
         onChange={(e) => setUrl(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         disabled={isChecking}
-        className={`flex-1 bg-transparent outline-none px-2 py-2 ${isChecking ? 'text-gray-500' : 'text-white'}`}
+        className={clsx(
+          "flex-1 bg-transparent outline-none px-2 py-3 transition-colors",
+          isChecking ? 'text-gray-500' : (theme === 'light' ? 'text-zinc-900' : 'text-white')
+        )}
       />
 
       <button
         onClick={handleSubmit}
         disabled={isChecking}
-        className="bg-yellow-400 text-black px-2 py-1 my-1 rounded-lg font-semibold hover:bg-yellow-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        className={clsx(
+          "px-4 py-1.5 my-1 rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm",
+          theme === 'light' ? "bg-blue-600 hover:bg-blue-500 text-white" : "bg-[#ffc53d] hover:bg-[#facc15] text-black"
+        )}
       >
         {isChecking ? "Checking..." : "Preview"}
       </button>

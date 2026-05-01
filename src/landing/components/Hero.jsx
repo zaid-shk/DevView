@@ -1,6 +1,7 @@
 import React from 'react'
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import mockupImg from '../../assets/mockup.png'
 
 const Hero = () => {
   return (
@@ -49,7 +50,7 @@ const Hero = () => {
         <div className="relative group">
           {/* <div className="absolute -inset-1 "></div> */}
           <img 
-            src="/mockup.png" 
+            src={mockupImg} 
             alt="Device Mockups" 
             className="relative w-full max-w-[600px] object-contain drop-shadow-2xl"
           />

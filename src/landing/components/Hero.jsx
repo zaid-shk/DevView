@@ -1,5 +1,4 @@
 import React from 'react'
-import img from '../../assets/toppng.com-responsive-web-design-responsive-webdesi-787x517.png'
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -50,7 +49,7 @@ const Hero = () => {
         <div className="relative group">
           {/* <div className="absolute -inset-1 "></div> */}
           <img 
-            src={img} 
+            src="/mockup.png" 
             alt="Device Mockups" 
             className="relative w-full max-w-[600px] object-contain drop-shadow-2xl"
           />

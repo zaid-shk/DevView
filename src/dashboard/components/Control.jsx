@@ -190,7 +190,7 @@ const Control = () => {
                 theme === 'light' ? 'bg-white text-zinc-600 border-zinc-200' : 'bg-[#0a0a0a] text-zinc-300 border-zinc-800/50'
             )}>
                 {/* Zoom Controls */}
-                <div className={clsx("flex items-center gap-3 px-2 py-1.5 rounded-xl border shadow-sm transition-colors", theme === 'light' ? 'bg-zinc-100 border-zinc-200' : 'bg-[#18181b] border-zinc-800/50')}>
+                <div className={clsx("flex items-center gap-3 px-2 py-1.5 rounded border shadow-sm transition-colors", theme === 'light' ? 'bg-zinc-100 border-zinc-200' : 'bg-[#18181b] border-zinc-800/50')}>
                     <button onClick={() => dispatch(decremented())} className={clsx("p-1.5 rounded-lg transition-colors flex items-center justify-center", theme === 'light' ? 'bg-zinc-200 hover:bg-zinc-300' : 'bg-[#27272a] hover:bg-zinc-600')}>
                         <Minus size={14} className={theme === 'light' ? 'text-zinc-600' : 'text-zinc-400'} />
                     </button>

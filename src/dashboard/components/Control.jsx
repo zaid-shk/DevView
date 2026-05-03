@@ -151,7 +151,7 @@ const Control = () => {
         } catch (error) {
             console.error("Screenshot error:", error);
             if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
-                toast.error("Backend server not running. Start it with: node server.js", { id: loadingToast, duration: 5000 });
+                toast.error("Capture error", { id: loadingToast, duration: 5000 });
             } else {
                 toast.error(`Capture failed: ${error.response?.data?.details || error.message}`, { id: loadingToast });
             }

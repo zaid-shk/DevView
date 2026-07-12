@@ -1,9 +1,16 @@
 import React from 'react';
 import { Search, AppWindow } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { clsx } from 'clsx';
 
 const EmptyState = () => {
+    const theme = useSelector((state) => state.app.theme);
+
     return (
-        <div className="flex-1 flex flex-col items-center justify-center w-full h-[calc(100vh-150px)] bg-[#0a0a0a] relative overflow-hidden">
+        <div className={clsx(
+            "flex-1 flex flex-col items-center justify-center w-full h-[calc(100vh-150px)] relative overflow-hidden transition-colors duration-300",
+            theme === 'light' ? "bg-white" : "bg-[#0a0a0a]"
+        )}>
             {/* Floating background decorative elements */}
             <div className="absolute top-1/4 left-1/4 w-1.5 h-1.5 rounded-full bg-yellow-500/30"></div>
             <div className="absolute top-1/3 right-1/4 w-2 h-2 rotate-45 border border-zinc-500/40"></div>
@@ -12,11 +19,17 @@ const EmptyState = () => {
 
             {/* Main Icon Container */}
             <div className="relative mb-10 mt-10">
-                <div className="bg-[#18181b] p-8 rounded-2xl border border-zinc-800/80 shadow-[0_0_40px_rgba(0,0,0,0.5)] relative z-10">
-                    <AppWindow size={80} strokeWidth={1} className="text-zinc-500" />
+                <div className={clsx(
+                    "p-8 rounded-2xl border relative z-10 transition-colors",
+                    theme === 'light' ? "bg-zinc-100 border-zinc-200 shadow-xl shadow-zinc-200/50" : "bg-[#18181b] border-zinc-800/80 shadow-[0_0_40px_rgba(0,0,0,0.5)]"
+                )}>
+                    <AppWindow size={80} strokeWidth={1} className={theme === 'light' ? "text-zinc-400" : "text-zinc-500"} />
 
-                    <div className="absolute -bottom-3 -right-3 bg-[#ffc53d] p-3.5 rounded-full border-[6px] border-[#0a0a0a] shadow-lg">
-                        <Search size={28} strokeWidth={3} className="text-[#0a0a0a]" />
+                    <div className={clsx(
+                        "absolute -bottom-3 -right-3 p-3.5 rounded-full border-[6px] shadow-lg",
+                        theme === 'light' ? "bg-blue-600 border-white text-white" : "bg-[#ffc53d] border-[#0a0a0a] text-[#0a0a0a]"
+                    )}>
+                        <Search size={28} strokeWidth={3} />
                     </div>
                 </div>
 
@@ -27,7 +40,7 @@ const EmptyState = () => {
             </div>
 
             {/* Text Content */}
-            <h2 className="text-[22px] font-semibold text-white mb-4 tracking-tight">Enter a URL to start previewing</h2>
+            <h2 className={clsx("text-[22px] font-semibold mb-4 tracking-tight", theme === 'light' ? "text-zinc-900" : "text-white")}>Enter a URL to start previewing</h2>
             <p className="text-zinc-400 text-center max-w-[340px] text-[15px] leading-relaxed mb-8">
                 Paste any website URL above and click Preview to see it across all devices.
             </p>

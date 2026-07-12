@@ -5,9 +5,11 @@ import Footer from './components/Footer'
 
 const Page = () => {
   return (
-    <div className='bg-zinc-900 h-screen '>
+    <div className='bg-zinc-900 min-h-screen flex flex-col'>
       <Navbar />
-      <Hero/>
+      <main className="flex-grow">
+        <Hero/>
+      </main>
       <Footer/>
     </div>
   )

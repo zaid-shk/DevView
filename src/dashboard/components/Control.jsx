@@ -12,7 +12,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 const Control = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
+    const navigate  = useNavigate();
     const syncScroll = useSelector((state) => state.app.syncScroll);
     const reload = useSelector((state) => state.app.reload);
     const zoomLevel = useSelector((state) => state.app.zoomLevel);

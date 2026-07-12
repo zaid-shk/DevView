@@ -30,7 +30,10 @@ export default function URLBar({ onSubmit }) {
     }
 
     // Default to http for localhost and local IPs
-    if (base.includes("localhost") || base.match(/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/)) {
+    if (
+      base.includes("localhost") ||
+      base.match(/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/)
+    ) {
       onSubmit("http://" + base);
       return;
     }
@@ -60,11 +63,14 @@ export default function URLBar({ onSubmit }) {
   };
 
   return (
-    <div className={clsx(
-      "w-full max-w-2xl mx-auto flex items-center gap-2 px-2 rounded-xl border transition-colors duration-300",
-      theme === 'light' ? "bg-zinc-100 border-zinc-200 shadow-sm" : "bg-[#1a1a1a] border-gray-700"
-    )}>
-      
+    <div
+      className={clsx(
+        "w-full max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2 md:px-2 md:p-0 rounded-xl md:border transition-colors duration-300 ",
+        theme === "light"
+          ? "md:bg-zinc-100 md:border-zinc-200 md:shadow-sm"
+          : "md:bg-[#1a1a1a] md:border-gray-700",
+      )}
+    >
       <input
         type="text"
         placeholder="Enter website URL (e.g. example.com)"
@@ -73,17 +79,26 @@ export default function URLBar({ onSubmit }) {
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         disabled={isChecking}
         className={clsx(
-          "flex-1 bg-transparent outline-none px-2 py-3 transition-colors",
-          isChecking ? 'text-gray-500' : (theme === 'light' ? 'text-zinc-900' : 'text-white')
+          "w-full flex-1 md:bg-transparent outline-none px-3 py-3 text-sm sm:text-base rounded-xl border md:border-none transition-colors duration-300",
+          isChecking
+            ? "text-gray-500"
+            : theme === "light"
+              ? "text-zinc-900"
+              : "text-white",
+              
+          theme === "light"
+            ? "bg-zinc-100 border-zinc-200 md:border-none shadow-sm md:shadow-none"
+            : "bg-[#1a1a1a] border-gray-700 md:border-none",
         )}
       />
-
       <button
         onClick={handleSubmit}
         disabled={isChecking}
         className={clsx(
-          "px-4 py-1.5 my-1 rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm",
-          theme === 'light' ? "bg-blue-600 hover:bg-blue-500 text-white" : "bg-[#ffc53d] hover:bg-[#facc15] text-black"
+          "w-full sm:w-auto px-4 md:py-1.5 py-2 rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm",
+          theme === "light"
+            ? "bg-blue-600 hover:bg-blue-500 text-white"
+            : "bg-[#ffc53d] hover:bg-[#facc15] text-black",
         )}
       >
         {isChecking ? "Checking..." : "Preview"}

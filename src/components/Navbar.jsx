@@ -17,10 +17,10 @@ const Navbar = () => {
 
     return (
         <div className={clsx(
-            "sticky top-0 z-[100] border-b transition-all duration-300",
-            theme === 'light' ? "bg-white/80 backdrop-blur-md border-zinc-200" : "bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50"
+            "sticky top-0 z-100 border-b transition-all duration-300",
+            theme === 'light' ? "bg-white/80 backdrop-blur-md border-zinc-200" : "bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 pb-2 lg:pb-0"
         )}>
-            <div className="flex justify-between items-center px-6 lg:px-10 py-3 max-w-[1600px] mx-auto">
+            <div className="flex justify-between items-center px-6 lg:px-10 py-3 max-w-400 mx-auto">
                 <Link to="/" className={clsx(
                     "text-2xl font-black tracking-tighter transition-colors",
                     theme === 'light' ? "text-zinc-900" : "text-white"
@@ -28,7 +28,7 @@ const Navbar = () => {
                     Dev<span className="text-blue-500">View</span>
                 </Link>
 
-                <div className="flex-1 max-w-2xl px-8">
+                <div className="hidden lg:flex flex-1 max-w-2xl px-8">
                     <URLBar onSubmit={handleUrlSubmit} />
                 </div>
 
@@ -52,7 +52,11 @@ const Navbar = () => {
                         <Settings size={18} />
                     </Link>
                 </div>
+                
             </div>
+            <div className="flex lg:hidden flex-1 max-w-2xl px-8">
+                    <URLBar onSubmit={handleUrlSubmit} />
+                </div>
         </div>
     )
 }

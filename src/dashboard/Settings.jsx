@@ -61,12 +61,12 @@ const SettingsPage = () => {
         )}>
             <Navbar />
             
-            <main className="max-w-5xl mx-auto px-6 py-10">
+            <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-10">
                 <div className="flex items-center gap-4 mb-8">
                     <button 
                         onClick={() => navigate('/dashboard')}
                         className={clsx(
-                            "p-2 rounded-lg transition-colors",
+                            "p-2 rounded-lg transition-colors shrink-0",
                             theme === 'light' ? "hover:bg-zinc-200 text-zinc-500 hover:text-zinc-900" : "hover:bg-zinc-800 text-zinc-400 hover:text-white"
                         )}
                     >
@@ -76,12 +76,12 @@ const SettingsPage = () => {
                 </div>
 
                 <div className={clsx(
-                    "flex rounded-3xl border overflow-hidden min-h-[600px] shadow-2xl transition-all",
+                    "flex flex-col md:flex-row rounded-3xl border overflow-hidden min-h-100 md:min-h-150 shadow-2xl transition-all",
                     theme === 'light' ? "bg-white border-zinc-200" : "bg-[#111113] border-zinc-800/50"
                 )}>
-                    {/* Sidebar */}
+                    {/* Sidebar - Hidden on mobile, visible on md+ */}
                     <div className={clsx(
-                        "w-64 border-r p-4 transition-colors",
+                        "hidden md:block md:w-64 border-r p-4 transition-colors",
                         theme === 'light' ? "bg-zinc-50/50 border-zinc-200" : "bg-[#0c0c0e] border-zinc-800/50"
                     )}>
                         <div className="space-y-1">
@@ -107,26 +107,54 @@ const SettingsPage = () => {
                         </div>
                     </div>
 
+                    {/* Mobile Tab Navigation - Visible on mobile, hidden on md+ */}
+                    <div className={clsx(
+                        "md:hidden border-b overflow-x-auto",
+                        theme === 'light' ? "bg-zinc-50/50 border-zinc-200" : "bg-[#0c0c0e] border-zinc-800/50"
+                    )}>
+                        <div className="flex gap-1 p-2 min-w-max">
+                            {sidebarItems.map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setActiveTab(item.id)}
+                                    className={clsx(
+                                        "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all",
+                                        activeTab === item.id
+                                            ? (theme === 'light' ? "bg-white text-blue-600 shadow-md border border-zinc-200" : "bg-zinc-800 text-white shadow-lg")
+                                            : item.danger 
+                                                ? "text-zinc-500 hover:text-rose-400"
+                                                : (theme === 'light' ? "text-zinc-500 hover:text-zinc-900" : "text-zinc-500 hover:text-zinc-200")
+                                    )}
+                                >
+                                    <item.icon size={14} className={clsx(
+                                        activeTab === item.id ? "text-blue-500" : "text-zinc-600"
+                                    )} />
+                                    <span className="hidden sm:inline">{item.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Content */}
-                    <div className="flex-1 p-8">
+                    <div className="flex-1 p-4 md:p-8">
                         {activeTab === 'appearance' && (
                             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center justify-between mb-8 gap-4">
                                     <h2 className={clsx("text-xl font-bold", theme === 'light' ? "text-zinc-900" : "text-white")}>Appearance</h2>
-                                    <button onClick={() => navigate('/dashboard')} className="text-zinc-500 hover:text-white transition-colors">
+                                    <button onClick={() => navigate('/dashboard')} className="text-zinc-500 hover:text-white transition-colors shrink-0 md:hidden">
                                         <X size={20} />
                                     </button>
                                 </div>
 
                                 <div className="space-y-8">
                                     {/* Theme */}
-                                     <div className="flex items-center justify-between">
+                                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                          <div>
                                              <h3 className={clsx("text-sm font-semibold", theme === 'light' ? "text-zinc-800" : "text-zinc-200")}>Theme</h3>
                                              <p className="text-xs text-zinc-500 mt-1">Choose your preferred visual theme</p>
                                          </div>
                                          <div className={clsx(
-                                             "flex p-1 rounded-xl border transition-colors",
+                                             "flex p-1 rounded-xl border transition-colors w-fit",
                                              theme === 'light' ? "bg-zinc-100 border-zinc-200" : "bg-[#0a0a0a] border-zinc-800"
                                          )}>
                                              <button 
@@ -187,7 +215,7 @@ const SettingsPage = () => {
                                          
                                          <div className="space-y-6">
                                              {/* Sync Scroll */}
-                                             <div className="flex items-center justify-between">
+                                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                                  <div>
                                                      <div className="flex items-center gap-2">
                                                          <Layout size={16} className="text-blue-500" />
@@ -198,7 +226,7 @@ const SettingsPage = () => {
                                                  <button 
                                                      onClick={() => toggleSwitch(syncScroll, setSyncScroll)}
                                                      className={clsx(
-                                                         "w-10 h-5 rounded-full relative transition-colors duration-200",
+                                                         "w-10 h-5 rounded-full relative transition-colors duration-200 md:shrink-0",
                                                          syncScroll ? "bg-blue-500" : (theme === 'light' ? "bg-zinc-200" : "bg-zinc-700")
                                                      )}
                                                  >
@@ -210,7 +238,7 @@ const SettingsPage = () => {
                                              </div>
 
                                              {/* Show Device Frames */}
-                                             <div className="flex items-center justify-between">
+                                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                                  <div>
                                                      <div className="flex items-center gap-2">
                                                          <Eye size={16} className="text-emerald-500" />
@@ -221,7 +249,7 @@ const SettingsPage = () => {
                                                  <button 
                                                      onClick={() => toggleSwitch(showDeviceFrames, setShowDeviceFrames)}
                                                      className={clsx(
-                                                         "w-10 h-5 rounded-full relative transition-colors duration-200",
+                                                         "w-10 h-5 rounded-full relative transition-colors duration-200 md:shrink-0",
                                                          showDeviceFrames ? "bg-blue-500" : (theme === 'light' ? "bg-zinc-200" : "bg-zinc-700")
                                                      )}
                                                  >
@@ -233,7 +261,7 @@ const SettingsPage = () => {
                                              </div>
 
                                              {/* Enable Animations */}
-                                             <div className="flex items-center justify-between">
+                                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                                  <div>
                                                      <div className="flex items-center gap-2">
                                                          <Zap size={16} className="text-amber-500" />
@@ -244,7 +272,7 @@ const SettingsPage = () => {
                                                  <button 
                                                      onClick={() => toggleSwitch(enableAnimations, setEnableAnimations)}
                                                      className={clsx(
-                                                         "w-10 h-5 rounded-full relative transition-colors duration-200",
+                                                         "w-10 h-5 rounded-full relative transition-colors duration-200 md:shrink-0",
                                                          enableAnimations ? "bg-blue-500" : (theme === 'light' ? "bg-zinc-200" : "bg-zinc-700")
                                                      )}
                                                  >
@@ -267,7 +295,7 @@ const SettingsPage = () => {
                                     <ShieldAlert size={32} className="text-zinc-600" />
                                 </div>
                                 <h3 className="text-lg font-medium text-zinc-300 mb-1">{sidebarItems.find(i => i.id === activeTab).label}</h3>
-                                <p className="text-zinc-500 text-sm max-w-[250px]">This section is coming soon. Stay tuned!</p>
+                                <p className="text-zinc-500 text-sm max-w-62.5">This section is coming soon. Stay tuned!</p>
                             </div>
                         )}
                     </div>
